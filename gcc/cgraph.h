@@ -1634,6 +1634,9 @@ struct GTY((chain_next ("%h.next_caller"), chain_prev ("%h.prev_caller"),
      type.  */
   unsigned in_polymorphic_cdtor : 1;
 
+  /* For Call graph, caller location */
+  location_t caller_location;
+
 private:
   /* Remove the edge from the list of the callers of the callee.  */
   void remove_caller (void);
