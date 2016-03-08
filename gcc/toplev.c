@@ -2105,24 +2105,33 @@ toplev::start_timevars ()
 
 /* Call graph file operation */
 FILE *cgraph_output_file = NULL;
-char cgraph_file_name[256] = "---error---";
+static char cgraph_file_name[256] = "---error---";
 
 FILE *cgraph_output_file_open (const char *filename) {
   if (cgraph_output_file)
     return cgraph_output_file;
 
+  struct stat fstat;
+  int ret;
+
   strcpy (cgraph_file_name, filename);
   strcat (cgraph_file_name, ".cgraph");
 
-  cgraph_output_file = fopen (cgraph_file_name, "w");
-  fprintf(stderr, "cgraph file: %s\n", cgraph_file_name);
+  ret = stat (cgraph_file_name, &fstat);
+  if (ret)
+    cgraph_output_file = fopen (cgraph_file_name, "w");
+  else
+    cgraph_output_file = fopen (cgraph_file_name, "a");
+
+  fprintf(stderr, "[cgraph file]: %s\n", cgraph_file_name);
   return cgraph_output_file;
 }
 
 void cgraph_output_file_close () {
-  if (cgraph_output_file)
+  if (cgraph_output_file) {
     fclose (cgraph_output_file);
-  cgraph_output_file = NULL;
+    cgraph_output_file = NULL;
+  }
 }
 
 /* Entry point of cc1, cc1plus, jc1, f771, etc.
@@ -2185,7 +2194,7 @@ toplev::main (int argc, char **argv)
     {
       if (m_use_TV_TOTAL)
 	start_timevars ();
-      cgraph_output_file_open (main_input_filename);
+      cgraph_output_file_open ("/home/llei/result");
       do_compile ();
       cgraph_output_file_close ();	
     }
